@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Category;
 use App\Http\Controllers\Controller;
 use App\Post;
+use App\Tag;
 use Illuminate\Http\Request;
 
 class PostsController extends Controller
@@ -31,7 +32,9 @@ class PostsController extends Controller
     public function create()
     {
         $categories = Category::all();
-        return view('admin.posts.create', compact('categories'));
+        $tags = Tag::all();
+
+        return view('admin.posts.create', compact('categories','tags'));
     }
 
     /**
@@ -50,6 +53,11 @@ class PostsController extends Controller
         $new_post->fill($data);
         $new_post->slug = Post::slugCreate($new_post->title);
         $new_post->save();
+
+
+        if(array_key_exists('tags', $data)){
+            $new_post->tags()->attach($data['tags']);
+        }
 
         return redirect()->route('admin.posts.show', $new_post);
     }
@@ -81,10 +89,11 @@ class PostsController extends Controller
     public function edit($id)
     {
         $categories = Category::all();
+        $tags = Tag::all();
         $post = Post::find($id);
 
         if($post){
-            return view('admin.posts.edit', compact('post'), compact('categories'));
+            return view('admin.posts.edit', compact('post','categories', 'tags'));
         }
         abort(404,'Pagina non trovata');
 
@@ -108,6 +117,12 @@ class PostsController extends Controller
         }
 
         $post->update($form_data);
+
+        if(array_key_exists('tags',$form_data)){
+            $post->tags()->sync($form_data['tags']);
+        }else{
+            $post->tags()->detach();
+        }
 
         return redirect()->route('admin.posts.show', $post);
     }

@@ -18,8 +18,8 @@
         <tr>
           <th scope="col">ID</th>
           <th scope="col">Titolo</th>
+          <th scope="col">Tag</th>
           <th scope="col">Categoria</th>
-          <th scope="col">Contenuto</th>
         </tr>
       </thead>
       <tbody>
@@ -27,6 +27,13 @@
           <tr>
             <th scope="row">{{$post->id}}</th>
             <td>{{$post->title}}</td>
+            <td>
+              @forelse ($post->tags as $tag)
+              <span class="badge bg-info text-dark">{{$tag->name}}</span>
+              @empty
+                /
+              @endforelse
+            </td>
 
             @if ($post->category)
               <td>{{$post->category->name}}</td>
